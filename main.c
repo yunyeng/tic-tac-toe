@@ -7,9 +7,10 @@
 //
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <time.h>
 #define ARR_SIZE(arr) ( sizeof((arr)) / sizeof((arr[0])) )
-
+int main(void);
 int board[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 char place(int i){
@@ -32,14 +33,13 @@ int isEmpty(int i){
 
 int placeComputer(int c){
 	if(!boardFull()){
-		if(isEmpty(c) != 1){
+		if(!isEmpty(c)){
 			placeComputer(rand() % 9);
 		} else {
 			return c;
 		}	
-	} else {
-		return -1;
 	}
+	return -1;
 }
 
 void clearBoard(){
@@ -53,9 +53,9 @@ void render(){
 			printf("|        |        |          |\n");
 		}
 		if(board[i] != 0){
-			printf("|%d   %c   ", i, place(board[i]));
+			printf("|%d   %c   ", i+1, place(board[i]));
 		} else{
-			 printf("|%d       ",i);
+			 printf("|%d       ",i+1);
 		}
 		if(i % 3 == 2) printf("  |");
 		if(i % 3 == 2){
@@ -88,47 +88,34 @@ int check(int who){
 
 void multiplayer(){
 	int gameOver = 0;
+	int i = 0;
 	while(gameOver == 0){
 		int userx;
 		int usero;
-		printf("\nPlayer X your turn!");
-		render();
-		printf("\nWhere do you want to put X? (0-8)\n");
-		scanf("%d", &userx);
-		if(!isEmpty(userx)){
-			printf("\nYou need to choose somewhere else!\n");
-			continue;
+		if(i % 2 == 0){
+			printf("\nPlayer X your turn!");			render();
+			printf("\nWhere do you want to put X? (1-9)\n");
+			scanf("%d", &userx);
+			userx--;
+			if(!isEmpty(userx)){
+				printf("\nYou need to choose somewhere else!\n");
+				continue;
+			} else {
+				board[userx] = 1;
+			}
 		} else {
-			board[userx] = 1;
+			render();
+			printf("\nPlayer O your turn!");
+			printf("\nWhere do you want to put O? (1-9)\n");
+			scanf("%d", &usero);
+			usero--;
+			if(!isEmpty(usero)){
+				printf("\nYou need to choose somewhere else!\n");
+				continue;
+			} else {
+				board[usero] = 2;
+			}
 		}
-		
-		if(check(1) == 1){
-					gameOver = 2;
-					render();
-					break;
-				} else if(check(2) == 1){
-					gameOver = 1;
-					render();
-					break;
-				} else if(boardFull()){
-					gameOver = 3;
-					render();
-					break;
-				}
-		
-		
-		render();
-		printf("\nPlayer O your turn!");
-		printf("\nWhere do you want to put O? (0-8)\n");
-		scanf("%d", &usero);
-		if(!isEmpty(usero)){
-			printf("\nYou need to choose somewhere else!\n");
-			continue;
-		} else {
-			board[usero] = 2;
-		}
-		
-		
 		if(check(1) == 1){
 			gameOver = 2;
 			render();
@@ -142,20 +129,15 @@ void multiplayer(){
 			render();
 			break;
 		}
-	
-	
-	
-	}
-	
+		i++;
+	}	
 	if(gameOver == 2){
-				printf("\nPlayer X Wins!\n");
-			} else if(gameOver == 1){
-				printf("\nPlayer O Wins!\n");
-			} else if(gameOver == 3){
-				printf("\nDRAWS!");
-			}
-	
-	
+		printf("\nPlayer X Wins!\n");
+	} else if(gameOver == 1){
+		printf("\nPlayer O Wins!\n");
+	} else if(gameOver == 3){
+		printf("\nDRAWS!");
+	}
 	char playAgain;
 	printf("\n\nPlay Again? (Y/N)\n\n");
 	scanf(" %c", &playAgain);
@@ -178,37 +160,36 @@ void singleGame(){
 		int user;
 		while(gameOver == 0 && XorO != 'q'){
 		    if(XorO == 'x'){
-					/* SHOW THE XOX BOARD */
-					render();
-					/* SHOW THE XOX BOARD */
-					printf("\n\n\nWhere do you want to put X? (0-8)\n");
-					scanf("%d", &user);
-					if(!isEmpty(user)){
-						printf("\nYou need to choose somewhere else!\n");
-						continue;
-					} else {
-						board[user] = 1;
-					}
-					
+				/* SHOW THE XOX BOARD */
+				render();
+				/* SHOW THE XOX BOARD */
+				printf("\n\n\nWhere do you want to put X? (1-9)\n");
+				scanf("%d", &user);
+				user--;
+				if(!isEmpty(user)){
+					printf("\nYou need to choose somewhere else!\n");
+					continue;
+				} else {
+					board[user] = 1;
+				}
+				computer = rand() % 9;
+				while(!isEmpty(computer)){
 					computer = rand() % 9;
-					while(!isEmpty(computer)){
-						computer = rand() % 9;
-					}
-					board[computer] = 2;
-					
-					if(check(1) == 1){
-						gameOver = 2;
-						render();
-						break;
-					} else if(check(2) == 1){
-						gameOver = 1;
-						render();
-						break;
-					} else if(boardFull()){
-						gameOver = 3;
-						render();
-						break;
-					}
+				}
+				board[computer] = 2;
+				if(check(1) == 1){
+					gameOver = 2;
+					render();
+					break;
+				} else if(check(2) == 1){
+					gameOver = 1;
+					render();
+					break;
+				} else if(boardFull()){
+					gameOver = 3;
+					render();
+					break;
+				}
 		    } else if(XorO == 'o'){
 				computer = rand() % 9;
 				if(again == 0){
@@ -233,8 +214,9 @@ void singleGame(){
 					gameOver = 3;
 					break;
 				}
-				printf("\n\n\nWhere do you want to put O? (0-8)\n");
+				printf("\n\n\nWhere do you want to put O? (1-9)\n");
 				scanf("%d", &user);
+				user--;
 				if(!isEmpty(user)){
 					printf("\nYou need to choose somewhere else!\n");
 					again = 1;
@@ -242,17 +224,13 @@ void singleGame(){
 					board[user] = 2;
 					computer = rand() % 9;
 				}
-				
-				
 		    } else {
 				printf("Type ONLY X or O\n");
 				printf("Type X or O\n");
 				scanf(" %c", &XorO);
 				XorO = tolower(XorO);
 		    }
-		
 		}
-		
 		if(gameOver == 1){
 			printf("\nYOU LOST!");
 		} else if(gameOver == 2){
@@ -260,7 +238,6 @@ void singleGame(){
 		} else if(gameOver == 3){
 			printf("\nDRAWS!");
 		}
-		
 		char playAgain;
 		printf("\n\nPlay Again? (Y/N)\n\n");
 		scanf(" %c", &playAgain);
@@ -271,8 +248,7 @@ void singleGame(){
 		}
 }
 
-
-int main() {
+int main(){
 	char type;
 	printf("Single Game or MultiPlayer? (S / M)\n");
 	scanf(" %c", &type);
@@ -288,7 +264,5 @@ int main() {
 		clearBoard();
 		main();
 	}
-
-	
 	return 0;
 }
